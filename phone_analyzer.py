@@ -37,7 +37,7 @@ from geopy.geocoders import Nominatim
 
 
 APP_NAME = "Phone Number Intelligence Analyzer"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 # ---------------------------------------------------------
@@ -225,12 +225,17 @@ def safe_geocode(geolocator, location, country):
     coordinates.
 
     This is NOT the location of the device or person.
+    Skip geocoding when location is too generic (e.g. just country name).
     """
 
     if not location or location == "Unknown":
         return None, None
 
     if not country or country == "Unknown":
+        return None, None
+
+    # Skip geocoding for country-level only results (common for PH mobiles)
+    if location.strip().lower() == country.strip().lower():
         return None, None
 
     try:
@@ -261,7 +266,7 @@ class PhoneAnalyzer:
         self.results = []
 
         self.geolocator = Nominatim(
-            user_agent="phone-intelligence-analyzer/1.0"
+            user_agent="phone-intelligence-analyzer/1.1"
         )
 
     def analyze(self, phone_input):
@@ -332,9 +337,16 @@ class PhoneAnalyzer:
                 "en"
             )
 
-            result["general_location"] = (
-                general_location or "Unknown"
-            )
+            raw_location = general_location or "Unknown"
+            result["general_location_raw"] = raw_location
+
+            # Make location message clearer for Philippine mobiles
+            if raw_location.strip().lower() == "philippines":
+                result["general_location"] = (
+                    "Philippines (City/Province level not available for mobile numbers)"
+                )
+            else:
+                result["general_location"] = raw_location
 
             # -------------------------------------------------
             # Carrier
@@ -391,11 +403,12 @@ class PhoneAnalyzer:
 
             # -------------------------------------------------
             # Approximate map coordinates
+            # (skipped when location is too generic)
             # -------------------------------------------------
 
             latitude, longitude = safe_geocode(
                 self.geolocator,
-                result["general_location"],
+                raw_location,
                 result["country"]
             )
 
@@ -475,6 +488,7 @@ class PhoneAnalyzer:
             f"{result['location_type']}"
         )
 
+        # Only show coordinates when they are meaningful
         if (
             result.get("approximate_latitude") is not None
             and result.get("approximate_longitude") is not None
@@ -488,7 +502,7 @@ class PhoneAnalyzer:
 
         print()
         print("⚠️ This is NOT live GPS tracking.")
-        print("⚠️ Coordinates represent general metadata only.")
+        print("⚠️ Coordinates (when shown) represent general metadata only.")
 
         print("=" * 60)
 
@@ -509,7 +523,10 @@ class PhoneAnalyzer:
         if latitude is None or longitude is None:
 
             print(
-                "⚠️ No approximate coordinates available."
+                "⚠️ No useful approximate coordinates available."
+            )
+            print(
+                "   (Common for Philippine mobile numbers — only country-level data exists)"
             )
 
             return None
