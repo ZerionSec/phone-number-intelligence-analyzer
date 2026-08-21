@@ -4,7 +4,25 @@
 
 > ⚠️ This tool does **NOT** track GPS, locate phones in real time, access cell towers, or identify the owner of a phone number.
 
-## Features
+---
+
+## 📖 Learning Path
+
+Recommended order para matuto at magamit ang tool:
+
+| Step | Topic                              | Link / File              | Difficulty |
+|------|------------------------------------|--------------------------|------------|
+| 1    | Overview & Features                | This README              | Beginner   |
+| 2    | Installation (Normal + Termux)     | [GUIDE.md](GUIDE.md)     | Beginner   |
+| 3    | Basic Usage                        | [GUIDE.md](GUIDE.md)     | Beginner   |
+| 4    | Batch Processing & Export          | [GUIDE.md](GUIDE.md)     | Intermediate |
+| 5    | Map Generation                     | [GUIDE.md](GUIDE.md)     | Intermediate |
+| 6    | Understanding Prefix vs Carrier    | This README + GUIDE      | Intermediate |
+| 7    | Ethical Use & Limitations          | Disclaimer section       | Important  |
+
+---
+
+## 🛠 Features
 
 - Number validity check
 - Country detection
@@ -17,48 +35,53 @@
 - JSON / CSV export
 - Local history logging
 
-## Important Notes
+---
+
+## ⚠️ Important Notes
 
 - Philippine prefix data reflects **original number assignment** only.
 - Due to **Mobile Number Portability (MNP)**, the current carrier may differ from the original prefix network.
 - Approximate coordinates are derived from the high-level geographic description returned by the numbering plan — **not** from the device.
 
-## Installation
+---
+
+## 📦 Quick Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+> Full installation guide (including **Termux**) → [GUIDE.md](GUIDE.md)
 
-### Single number
+---
+
+## 🚀 Quick Usage
 
 ```bash
+# Single number
 python phone_analyzer.py 09171234567
-python phone_analyzer.py +639171234567
+
+# With map
 python phone_analyzer.py --map 09171234567
-```
 
-### Batch mode
-
-```bash
+# Batch
 python phone_analyzer.py -b numbers.txt
-```
 
-### Export results
-
-```bash
+# Export
 python phone_analyzer.py 09171234567 -e json
-python phone_analyzer.py -b numbers.txt -e csv
 ```
 
-### Version
+---
 
-```bash
-python phone_analyzer.py -v
-```
+## 📋 Full Guide
 
-## Example Output
+Para sa detalyadong step-by-step instructions (kasama ang Termux):
+
+**👉 [GUIDE.md](GUIDE.md)**
+
+---
+
+## 📝 Example Output
 
 ```
 ============================================================
@@ -79,7 +102,9 @@ python phone_analyzer.py -v
 ============================================================
 ```
 
-## Disclaimer
+---
+
+## 🚫 Disclaimer
 
 This tool is intended for legitimate defensive security research, fraud investigation, and educational purposes only.  
 Misuse of phone number data may violate local laws. Always respect privacy regulations.
