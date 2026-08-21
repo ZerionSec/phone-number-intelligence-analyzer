@@ -97,8 +97,6 @@ Para sa detalyadong step-by-step instructions (kasama ang Termux):
 🌐 Intl     : +63 917 123 4567
 📍 Location type: Approximate metadata location only
 
-⚠️ This is NOT live GPS tracking.
-⚠️ Coordinates represent general metadata only.
 ============================================================
 ```
 
