@@ -37,7 +37,7 @@ from geopy.geocoders import Nominatim
 
 
 APP_NAME = "Phone Number Intelligence Analyzer"
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 
 
 # ---------------------------------------------------------
@@ -55,7 +55,7 @@ def print_banner():
 │   ░█████████░  ░█████████░  ░█████████░  ░█████████░   │
 │                                                         │
 │              Z E R I O N S E C                          │
-│     Phone Number Intelligence Analyzer  v1.2.0          │
+│     Phone Number Intelligence Analyzer  v1.2.1          │
 │                                                         │
 └──────────────────────────────────────────────────────────┘
 """
@@ -65,257 +65,110 @@ def print_banner():
 # ---------------------------------------------------------
 # PHILIPPINE PREFIX DATABASE
 # ---------------------------------------------------------
-# These represent commonly associated/original number prefixes.
-# Because of Mobile Number Portability, prefix != guaranteed
-# current carrier.
-#
-# Keep this database conservative instead of claiming certainty.
-# ---------------------------------------------------------
 
 PH_PREFIXES = {
-    # Globe / TM commonly associated prefixes
-    "0905": "Globe/TM",
-    "0906": "Globe/TM",
-    "0915": "Globe/TM",
-    "0916": "Globe/TM",
-    "0917": "Globe/TM",
-    "0926": "Globe/TM",
-    "0927": "Globe/TM",
-    "0935": "Globe/TM",
-    "0936": "Globe/TM",
-    "0937": "Globe/TM",
-    "0945": "Globe/TM",
-    "0956": "Globe/TM",
-    "0965": "Globe/TM",
-    "0966": "Globe/TM",
-    "0975": "Globe/TM",
-    "0976": "Globe/TM",
-    "0977": "Globe/TM",
-    "0978": "Globe/TM",
-    "0979": "Globe/TM",
-    "0995": "Globe/TM",
-    "0996": "Globe/TM",
-    "0997": "Globe/TM",
-    "0998": "Globe/TM",
-    "0999": "Globe/TM",
+    "0905": "Globe/TM", "0906": "Globe/TM", "0915": "Globe/TM", "0916": "Globe/TM",
+    "0917": "Globe/TM", "0926": "Globe/TM", "0927": "Globe/TM", "0935": "Globe/TM",
+    "0936": "Globe/TM", "0937": "Globe/TM", "0945": "Globe/TM", "0956": "Globe/TM",
+    "0965": "Globe/TM", "0966": "Globe/TM", "0975": "Globe/TM", "0976": "Globe/TM",
+    "0977": "Globe/TM", "0978": "Globe/TM", "0979": "Globe/TM", "0995": "Globe/TM",
+    "0996": "Globe/TM", "0997": "Globe/TM", "0998": "Globe/TM", "0999": "Globe/TM",
 
-    # Smart / TNT commonly associated prefixes
-    "0907": "Smart/TNT",
-    "0908": "Smart/TNT",
-    "0909": "Smart/TNT",
-    "0910": "Smart/TNT",
-    "0911": "Smart/TNT",
-    "0912": "Smart/TNT",
-    "0913": "Smart/TNT",
-    "0914": "Smart/TNT",
-    "0918": "Smart/TNT",
-    "0919": "Smart/TNT",
-    "0920": "Smart/TNT",
-    "0921": "Smart/TNT",
-    "0922": "Smart/TNT",
-    "0923": "Smart/TNT",
-    "0924": "Smart/TNT",
-    "0925": "Smart/TNT",
-    "0928": "Smart/TNT",
-    "0929": "Smart/TNT",
-    "0930": "Smart/TNT",
-    "0938": "Smart/TNT",
-    "0939": "Smart/TNT",
-    "0940": "Smart/TNT",
-    "0946": "Smart/TNT",
-    "0947": "Smart/TNT",
-    "0948": "Smart/TNT",
-    "0949": "Smart/TNT",
-    "0950": "Smart/TNT",
-    "0951": "Smart/TNT",
-    "0955": "Smart/TNT",
-    "0960": "Smart/TNT",
-    "0961": "Smart/TNT",
-    "0963": "Smart/TNT",
-    "0964": "Smart/TNT",
-    "0967": "Smart/TNT",
-    "0968": "Smart/TNT",
-    "0969": "Smart/TNT",
-    "0970": "Smart/TNT",
-    "0971": "Smart/TNT",
-    "0972": "Smart/TNT",
-    "0973": "Smart/TNT",
-    "0974": "Smart/TNT",
-    "0980": "Smart/TNT",
-    "0981": "Smart/TNT",
-    "0988": "Smart/TNT",
-    "0989": "Smart/TNT",
-    "0990": "Smart/TNT",
-    "0991": "Smart/TNT",
-    "0992": "Smart/TNT",
-    "0993": "Smart/TNT",
-    "0994": "Smart/TNT",
+    "0907": "Smart/TNT", "0908": "Smart/TNT", "0909": "Smart/TNT", "0910": "Smart/TNT",
+    "0911": "Smart/TNT", "0912": "Smart/TNT", "0913": "Smart/TNT", "0914": "Smart/TNT",
+    "0918": "Smart/TNT", "0919": "Smart/TNT", "0920": "Smart/TNT", "0921": "Smart/TNT",
+    "0922": "Smart/TNT", "0923": "Smart/TNT", "0924": "Smart/TNT", "0925": "Smart/TNT",
+    "0928": "Smart/TNT", "0929": "Smart/TNT", "0930": "Smart/TNT", "0938": "Smart/TNT",
+    "0939": "Smart/TNT", "0940": "Smart/TNT", "0946": "Smart/TNT", "0947": "Smart/TNT",
+    "0948": "Smart/TNT", "0949": "Smart/TNT", "0950": "Smart/TNT", "0951": "Smart/TNT",
+    "0955": "Smart/TNT", "0960": "Smart/TNT", "0961": "Smart/TNT", "0963": "Smart/TNT",
+    "0964": "Smart/TNT", "0967": "Smart/TNT", "0968": "Smart/TNT", "0969": "Smart/TNT",
+    "0970": "Smart/TNT", "0971": "Smart/TNT", "0972": "Smart/TNT", "0973": "Smart/TNT",
+    "0974": "Smart/TNT", "0980": "Smart/TNT", "0981": "Smart/TNT", "0988": "Smart/TNT",
+    "0989": "Smart/TNT", "0990": "Smart/TNT", "0991": "Smart/TNT", "0992": "Smart/TNT",
+    "0993": "Smart/TNT", "0994": "Smart/TNT",
 
-    # DITO commonly associated prefixes
-    "0895": "DITO",
-    "0896": "DITO",
-    "0897": "DITO",
-    "0898": "DITO",
+    "0895": "DITO", "0896": "DITO", "0897": "DITO", "0898": "DITO",
 }
 
 
-# ---------------------------------------------------------
-# HELPERS
-# ---------------------------------------------------------
-
 def clean_number(number):
-    """Keep only digits and an optional leading +."""
     number = number.strip()
-
     if number.startswith("+"):
         return "+" + re.sub(r"\D", "", number[1:])
-
     return re.sub(r"\D", "", number)
 
 
 def normalize_ph_number(number):
-    """
-    Convert common Philippine formats to international format.
-
-    09171234567 -> +639171234567
-    639171234567 -> +639171234567
-    +639171234567 -> +639171234567
-    """
-
     number = clean_number(number)
-
     if number.startswith("+63"):
         return number
-
     if number.startswith("63"):
         return "+" + number
-
     if number.startswith("0") and len(number) == 11:
         return "+63" + number[1:]
-
     return number
 
 
 def get_ph_prefix(number):
-    """
-    Return the traditional 4-digit prefix (e.g. 0917, 0895).
-
-    After stripping the country code (+63), Philippine mobile numbers
-    start with 9xx or 8xx. We reconstruct the common local form
-    that includes the leading zero.
-    """
     normalized = normalize_ph_number(number)
-
     if not normalized.startswith("+63"):
         return None
-
-    local = normalized[3:]  # strip country code
-
+    local = normalized[3:]
     if len(local) < 3:
         return None
-
-    # Most common case: 9XX… → 09XX
     if local.startswith("9") and len(local) >= 3:
         return "0" + local[:3]
-
-    # DITO and other 08xx ranges
     if local.startswith("8") and len(local) >= 3:
         return "0" + local[:3]
-
     return None
 
 
 def get_original_ph_network(number):
-    """
-    Get commonly associated network from prefix.
-
-    This is NOT guaranteed to be the current carrier because
-    of Mobile Number Portability.
-    """
-
     prefix = get_ph_prefix(number)
-
     if not prefix:
         return "Unknown"
-
     return PH_PREFIXES.get(prefix, "Unknown")
 
 
 def safe_geocode(geolocator, location, country):
-    """
-    Convert a general region/city description into approximate
-    coordinates.
-
-    This is NOT the location of the device or person.
-    Skip geocoding when location is too generic (e.g. just country name).
-    """
-
     if not location or location == "Unknown":
         return None, None
-
     if not country or country == "Unknown":
         return None, None
-
-    # Skip geocoding for country-level only results (common for PH mobiles)
     if location.strip().lower() == country.strip().lower():
         return None, None
-
     try:
         query = f"{location}, {country}"
-
-        result = geolocator.geocode(
-            query,
-            exactly_one=True,
-            timeout=10
-        )
-
+        result = geolocator.geocode(query, exactly_one=True, timeout=10)
         if result:
             return result.latitude, result.longitude
-
     except Exception:
         pass
-
     return None, None
 
-
-# ---------------------------------------------------------
-# PHONE ANALYZER
-# ---------------------------------------------------------
 
 class PhoneAnalyzer:
 
     def __init__(self):
         self.results = []
-
-        self.geolocator = Nominatim(
-            user_agent="phone-intelligence-analyzer/1.2"
-        )
+        self.geolocator = Nominatim(user_agent="phone-intelligence-analyzer/1.2")
 
     def analyze(self, phone_input):
-
         original_input = phone_input
         normalized = normalize_ph_number(phone_input)
 
         result = {
             "input": original_input,
             "number": normalized,
-            "timestamp": datetime.now(
-                dt_timezone.utc
-            ).isoformat()
+            "timestamp": datetime.now(dt_timezone.utc).isoformat()
         }
 
         try:
-
             try:
-                parsed = phonenumbers.parse(
-                    normalized,
-                    "PH"
-                )
+                parsed = phonenumbers.parse(normalized, "PH")
             except phonenumbers.NumberParseException as exc:
-                return {
-                    "input": original_input,
-                    "error": f"Invalid phone format: {exc}"
-                }
+                return {"input": original_input, "error": f"Invalid phone format: {exc}"}
 
             result["possible"] = phonenumbers.is_possible_number(parsed)
             result["valid"] = phonenumbers.is_valid_number(parsed)
@@ -332,9 +185,7 @@ class PhoneAnalyzer:
             result["general_location_raw"] = raw_location
 
             if raw_location.strip().lower() == "philippines":
-                result["general_location"] = (
-                    "Philippines (City/Province level not available for mobile numbers)"
-                )
+                result["general_location"] = "Philippines (City/Province level not available for mobile numbers)"
             else:
                 result["general_location"] = raw_location
 
@@ -355,9 +206,7 @@ class PhoneAnalyzer:
                 parsed, phonenumbers.PhoneNumberFormat.NATIONAL
             )
 
-            latitude, longitude = safe_geocode(
-                self.geolocator, raw_location, result["country"]
-            )
+            latitude, longitude = safe_geocode(self.geolocator, raw_location, result["country"])
             result["approximate_latitude"] = latitude
             result["approximate_longitude"] = longitude
 
@@ -367,13 +216,9 @@ class PhoneAnalyzer:
             return result
 
         except Exception as exc:
-            return {
-                "input": original_input,
-                "error": str(exc)
-            }
+            return {"input": original_input, "error": str(exc)}
 
     def display(self, result):
-
         print("\n" + "=" * 60)
         print(" PHONE NUMBER INTELLIGENCE")
         print("=" * 60)
@@ -403,13 +248,9 @@ class PhoneAnalyzer:
                 f"{result['approximate_longitude']}"
             )
 
-        print()
-        print("⚠️ This is NOT live GPS tracking.")
-        print("⚠️ Coordinates (when shown) represent general metadata only.")
         print("=" * 60)
 
     def generate_map(self, result):
-
         latitude = result.get("approximate_latitude")
         longitude = result.get("approximate_longitude")
 
@@ -460,12 +301,9 @@ class PhoneAnalyzer:
                         history = json.load(file)
                     except json.JSONDecodeError:
                         history = []
-
             history.append(result)
-
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(history, file, indent=4, ensure_ascii=False)
-
             print(f"💾 History saved: {filename}")
         except Exception as exc:
             print(f"⚠️ Could not save history: {exc}")
@@ -474,44 +312,36 @@ class PhoneAnalyzer:
         if not self.results:
             print("⚠️ Nothing to export.")
             return
-
         fields = set()
         for result in self.results:
             fields.update(result.keys())
         fields = sorted(fields)
-
         with open(filename, "w", newline="", encoding="utf-8") as file:
             writer = csv.DictWriter(file, fieldnames=fields)
             writer.writeheader()
             for result in self.results:
                 writer.writerow(result)
-
         print(f"📄 CSV exported: {filename}")
 
     def export_json(self, filename="phone_results.json"):
         if not self.results:
             print("⚠️ Nothing to export.")
             return
-
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(self.results, file, indent=4, ensure_ascii=False)
-
         print(f"📄 JSON exported: {filename}")
 
     def process_batch(self, filename):
         if not os.path.exists(filename):
             print(f"❌ File not found: {filename}")
             return
-
         try:
             with open(filename, "r", encoding="utf-8") as file:
                 numbers = [line.strip() for line in file if line.strip()]
         except Exception as exc:
             print(f"❌ Could not read file: {exc}")
             return
-
         print(f"📂 Loaded {len(numbers)} number(s).")
-
         for index, number in enumerate(numbers, start=1):
             print(f"\n[{index}/{len(numbers)}]")
             result = self.analyze(number)
@@ -526,19 +356,10 @@ class PhoneAnalyzer:
         print(f"{APP_NAME} v{VERSION}")
 
 
-# ---------------------------------------------------------
-# CLI
-# ---------------------------------------------------------
-
 def main():
-
     parser = argparse.ArgumentParser(
-        description=(
-            "Analyze phone-number metadata. "
-            "This tool does not perform live GPS tracking."
-        )
+        description="Analyze phone-number metadata. This tool does not perform live GPS tracking."
     )
-
     parser.add_argument("number", nargs="?", help="Phone number to analyze")
     parser.add_argument("-b", "--batch", help="Text file containing one number per line")
     parser.add_argument("-e", "--export", choices=["json", "csv"], help="Export results")
@@ -547,7 +368,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Always show banner first (except for --version)
     if not args.version:
         print_banner()
 
@@ -561,10 +381,8 @@ def main():
         analyzer.process_batch(args.batch)
     else:
         number = args.number
-
         if not number:
             number = input("📞 Enter phone number: ").strip()
-
         if not number:
             print("❌ No phone number provided.")
             return
