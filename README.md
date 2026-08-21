@@ -1,8 +1,21 @@
+```
+┌──────────────────────────────────────────────────────────┐
+│                                                         │
+│   ░██████████░  ░█████████░  ░█████████░  ░█████████░   │
+│   ░██░░░░░░░░  ░██░░░░░░░  ░██░░░░░░░  ░██░░░░░░░   │
+│   ░█████████░  ░████████░  ░████████░  ░████████░   │
+│   ░██░░░░░░░░  ░██░░░░░░░  ░██░░░░░░░  ░██░░░░░░░   │
+│   ░█████████░  ░█████████░  ░█████████░  ░█████████░   │
+│                                                         │
+│              Z E R I O N S E C                          │
+│     Phone Number Intelligence Analyzer  v1.2.1          │
+│                                                         │
+└──────────────────────────────────────────────────────────┘
+```
+
 # Phone Number Intelligence Analyzer
 
 **Defensive / OSINT metadata tool** for analyzing publicly available phone number information.
-
-> ⚠️ This tool does **NOT** track GPS, locate phones in real time, access cell towers, or identify the owner of a phone number.
 
 ---
 
@@ -89,14 +102,13 @@ Para sa detalyadong step-by-step instructions (kasama ang Termux):
 ============================================================
 📞 Number  : +639171234567
 🌍 Country : Philippines
-🏙️ Location: Philippines
+🏙️ Location: Philippines (City/Province level not available for mobile numbers)
 📡 Carrier : Globe Telecom
 📱 Prefix  : 0917
 🏢 Prefix network: Globe/TM
 🕒 Timezone: Asia/Manila
 🌐 Intl     : +63 917 123 4567
 📍 Location type: Approximate metadata location only
-
 ============================================================
 ```
 
