@@ -37,7 +37,29 @@ from geopy.geocoders import Nominatim
 
 
 APP_NAME = "Phone Number Intelligence Analyzer"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
+
+
+# ---------------------------------------------------------
+# BANNER
+# ---------------------------------------------------------
+
+def print_banner():
+    banner = r"""
+┌──────────────────────────────────────────────────────────┐
+│                                                         │
+│   ░██████████░  ░█████████░  ░█████████░  ░█████████░   │
+│   ░██░░░░░░░░  ░██░░░░░░░  ░██░░░░░░░  ░██░░░░░░░   │
+│   ░█████████░  ░████████░  ░████████░  ░████████░   │
+│   ░██░░░░░░░░  ░██░░░░░░░  ░██░░░░░░░  ░██░░░░░░░   │
+│   ░█████████░  ░█████████░  ░█████████░  ░█████████░   │
+│                                                         │
+│              Z E R I O N S E C                          │
+│     Phone Number Intelligence Analyzer  v1.2.0          │
+│                                                         │
+└──────────────────────────────────────────────────────────┘
+"""
+    print(banner)
 
 
 # ---------------------------------------------------------
@@ -266,7 +288,7 @@ class PhoneAnalyzer:
         self.results = []
 
         self.geolocator = Nominatim(
-            user_agent="phone-intelligence-analyzer/1.1"
+            user_agent="phone-intelligence-analyzer/1.2"
         )
 
     def analyze(self, phone_input):
@@ -284,10 +306,6 @@ class PhoneAnalyzer:
 
         try:
 
-            # -------------------------------------------------
-            # Parse
-            # -------------------------------------------------
-
             try:
                 parsed = phonenumbers.parse(
                     normalized,
@@ -299,48 +317,20 @@ class PhoneAnalyzer:
                     "error": f"Invalid phone format: {exc}"
                 }
 
-            # -------------------------------------------------
-            # Basic validation
-            # -------------------------------------------------
-
-            result["possible"] = phonenumbers.is_possible_number(
-                parsed
-            )
-
-            result["valid"] = phonenumbers.is_valid_number(
-                parsed
-            )
+            result["possible"] = phonenumbers.is_possible_number(parsed)
+            result["valid"] = phonenumbers.is_valid_number(parsed)
 
             if not result["valid"]:
-                result["error"] = (
-                    "Number is not valid according to numbering metadata."
-                )
+                result["error"] = "Number is not valid according to numbering metadata."
                 return result
 
-            # -------------------------------------------------
-            # Country
-            # -------------------------------------------------
-
-            country = geocoder.country_name_for_number(
-                parsed,
-                "en"
-            )
-
+            country = geocoder.country_name_for_number(parsed, "en")
             result["country"] = country or "Unknown"
 
-            # -------------------------------------------------
-            # General location
-            # -------------------------------------------------
-
-            general_location = geocoder.description_for_number(
-                parsed,
-                "en"
-            )
-
+            general_location = geocoder.description_for_number(parsed, "en")
             raw_location = general_location or "Unknown"
             result["general_location_raw"] = raw_location
 
-            # Make location message clearer for Philippine mobiles
             if raw_location.strip().lower() == "philippines":
                 result["general_location"] = (
                     "Philippines (City/Province level not available for mobile numbers)"
@@ -348,95 +338,39 @@ class PhoneAnalyzer:
             else:
                 result["general_location"] = raw_location
 
-            # -------------------------------------------------
-            # Carrier
-            # -------------------------------------------------
+            library_carrier = carrier.name_for_number(parsed, "en")
+            result["carrier_metadata"] = library_carrier or "Unknown"
 
-            library_carrier = carrier.name_for_number(
-                parsed,
-                "en"
-            )
-
-            result["carrier_metadata"] = (
-                library_carrier or "Unknown"
-            )
-
-            # -------------------------------------------------
-            # Timezone
-            # -------------------------------------------------
-
-            timezones = timezone.time_zones_for_number(
-                parsed
-            )
-
+            timezones = timezone.time_zones_for_number(parsed)
             result["timezones"] = list(timezones)
 
-            # -------------------------------------------------
-            # Philippine prefix information
-            # -------------------------------------------------
-
             prefix = get_ph_prefix(phone_input)
-
             result["ph_prefix"] = prefix or "Unknown"
+            result["prefix_network"] = get_original_ph_network(phone_input)
 
-            result["prefix_network"] = (
-                get_original_ph_network(phone_input)
+            result["international_format"] = phonenumbers.format_number(
+                parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
             )
-
-            # -------------------------------------------------
-            # International formatting
-            # -------------------------------------------------
-
-            result["international_format"] = (
-                phonenumbers.format_number(
-                    parsed,
-                    phonenumbers.PhoneNumberFormat.INTERNATIONAL
-                )
+            result["national_format"] = phonenumbers.format_number(
+                parsed, phonenumbers.PhoneNumberFormat.NATIONAL
             )
-
-            result["national_format"] = (
-                phonenumbers.format_number(
-                    parsed,
-                    phonenumbers.PhoneNumberFormat.NATIONAL
-                )
-            )
-
-            # -------------------------------------------------
-            # Approximate map coordinates
-            # (skipped when location is too generic)
-            # -------------------------------------------------
 
             latitude, longitude = safe_geocode(
-                self.geolocator,
-                raw_location,
-                result["country"]
+                self.geolocator, raw_location, result["country"]
             )
-
             result["approximate_latitude"] = latitude
             result["approximate_longitude"] = longitude
 
-            # -------------------------------------------------
-            # Safety disclaimer
-            # -------------------------------------------------
-
-            result["location_type"] = (
-                "Approximate metadata location only"
-            )
-
+            result["location_type"] = "Approximate metadata location only"
             result["live_tracking"] = False
 
             return result
 
         except Exception as exc:
-
             return {
                 "input": original_input,
                 "error": str(exc)
             }
-
-    # ---------------------------------------------------------
-    # DISPLAY
-    # ---------------------------------------------------------
 
     def display(self, result):
 
@@ -445,55 +379,24 @@ class PhoneAnalyzer:
         print("=" * 60)
 
         if "error" in result:
-
             print(f"❌ Input    : {result.get('input', 'Unknown')}")
             print(f"❌ Error    : {result['error']}")
-
             return
 
         print(f"📞 Number  : {result['number']}")
         print(f"🌍 Country : {result['country']}")
-        print(
-            f"🏙️ Location: "
-            f"{result['general_location']}"
-        )
+        print(f"🏙️ Location: {result['general_location']}")
+        print(f"📡 Carrier : {result['carrier_metadata']}")
+        print(f"📱 Prefix  : {result['ph_prefix']}")
+        print(f"🏢 Prefix network: {result['prefix_network']}")
+        print(f"🕒 Timezone: {', '.join(result['timezones']) or 'Unknown'}")
+        print(f"🌐 Intl     : {result['international_format']}")
+        print(f"📍 Location type: {result['location_type']}")
 
-        print(
-            f"📡 Carrier : "
-            f"{result['carrier_metadata']}"
-        )
-
-        print(
-            f"📱 Prefix  : "
-            f"{result['ph_prefix']}"
-        )
-
-        print(
-            f"🏢 Prefix network: "
-            f"{result['prefix_network']}"
-        )
-
-        print(
-            f"🕒 Timezone: "
-            f"{', '.join(result['timezones']) or 'Unknown'}"
-        )
-
-        print(
-            f"🌐 Intl     : "
-            f"{result['international_format']}"
-        )
-
-        print(
-            f"📍 Location type: "
-            f"{result['location_type']}"
-        )
-
-        # Only show coordinates when they are meaningful
         if (
             result.get("approximate_latitude") is not None
             and result.get("approximate_longitude") is not None
         ):
-
             print(
                 f"🗺️ Approx. coordinates: "
                 f"{result['approximate_latitude']}, "
@@ -503,67 +406,29 @@ class PhoneAnalyzer:
         print()
         print("⚠️ This is NOT live GPS tracking.")
         print("⚠️ Coordinates (when shown) represent general metadata only.")
-
         print("=" * 60)
-
-    # ---------------------------------------------------------
-    # MAP
-    # ---------------------------------------------------------
 
     def generate_map(self, result):
 
-        latitude = result.get(
-            "approximate_latitude"
-        )
-
-        longitude = result.get(
-            "approximate_longitude"
-        )
+        latitude = result.get("approximate_latitude")
+        longitude = result.get("approximate_longitude")
 
         if latitude is None or longitude is None:
-
-            print(
-                "⚠️ No useful approximate coordinates available."
-            )
-            print(
-                "   (Common for Philippine mobile numbers — only country-level data exists)"
-            )
-
+            print("⚠️ No useful approximate coordinates available.")
+            print("   (Common for Philippine mobile numbers — only country-level data exists)")
             return None
 
         try:
-
             import folium
-
         except ImportError:
-
-            print(
-                "❌ Folium is not installed."
-            )
-
-            print(
-                "Install with: pip install folium"
-            )
-
+            print("❌ Folium is not installed.")
+            print("Install with: pip install folium")
             return None
 
-        safe_name = re.sub(
-            r"[^a-zA-Z0-9_-]",
-            "_",
-            result["number"]
-        )
+        safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", result["number"])
+        filename = f"phone_map_{safe_name}.html"
 
-        filename = (
-            f"phone_map_{safe_name}.html"
-        )
-
-        map_object = folium.Map(
-            location=[
-                latitude,
-                longitude
-            ],
-            zoom_start=8
-        )
+        map_object = folium.Map(location=[latitude, longitude], zoom_start=8)
 
         popup = f"""
         <b>Phone Intelligence</b><br>
@@ -583,214 +448,82 @@ class PhoneAnalyzer:
         ).add_to(map_object)
 
         map_object.save(filename)
-
-        print(
-            f"🗺️ Map saved: {filename}"
-        )
-
+        print(f"🗺️ Map saved: {filename}")
         return filename
 
-    # ---------------------------------------------------------
-    # HISTORY
-    # ---------------------------------------------------------
-
-    def save_history(
-        self,
-        result,
-        filename="phone_history.json"
-    ):
-
+    def save_history(self, result, filename="phone_history.json"):
         try:
-
             history = []
-
             if os.path.exists(filename):
-
-                with open(
-                    filename,
-                    "r",
-                    encoding="utf-8"
-                ) as file:
-
+                with open(filename, "r", encoding="utf-8") as file:
                     try:
                         history = json.load(file)
-
                     except json.JSONDecodeError:
                         history = []
 
             history.append(result)
 
-            with open(
-                filename,
-                "w",
-                encoding="utf-8"
-            ) as file:
+            with open(filename, "w", encoding="utf-8") as file:
+                json.dump(history, file, indent=4, ensure_ascii=False)
 
-                json.dump(
-                    history,
-                    file,
-                    indent=4,
-                    ensure_ascii=False
-                )
-
-            print(
-                f"💾 History saved: {filename}"
-            )
-
+            print(f"💾 History saved: {filename}")
         except Exception as exc:
+            print(f"⚠️ Could not save history: {exc}")
 
-            print(
-                f"⚠️ Could not save history: {exc}"
-            )
-
-    # ---------------------------------------------------------
-    # CSV EXPORT
-    # ---------------------------------------------------------
-
-    def export_csv(
-        self,
-        filename="phone_results.csv"
-    ):
-
+    def export_csv(self, filename="phone_results.csv"):
         if not self.results:
-
             print("⚠️ Nothing to export.")
-
             return
 
-        # Collect all possible keys
         fields = set()
-
         for result in self.results:
             fields.update(result.keys())
-
         fields = sorted(fields)
 
-        with open(
-            filename,
-            "w",
-            newline="",
-            encoding="utf-8"
-        ) as file:
-
-            writer = csv.DictWriter(
-                file,
-                fieldnames=fields
-            )
-
+        with open(filename, "w", newline="", encoding="utf-8") as file:
+            writer = csv.DictWriter(file, fieldnames=fields)
             writer.writeheader()
-
             for result in self.results:
                 writer.writerow(result)
 
-        print(
-            f"📄 CSV exported: {filename}"
-        )
+        print(f"📄 CSV exported: {filename}")
 
-    # ---------------------------------------------------------
-    # JSON EXPORT
-    # ---------------------------------------------------------
-
-    def export_json(
-        self,
-        filename="phone_results.json"
-    ):
-
+    def export_json(self, filename="phone_results.json"):
         if not self.results:
-
             print("⚠️ Nothing to export.")
-
             return
 
-        with open(
-            filename,
-            "w",
-            encoding="utf-8"
-        ) as file:
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(self.results, file, indent=4, ensure_ascii=False)
 
-            json.dump(
-                self.results,
-                file,
-                indent=4,
-                ensure_ascii=False
-            )
-
-        print(
-            f"📄 JSON exported: {filename}"
-        )
-
-    # ---------------------------------------------------------
-    # BATCH MODE
-    # ---------------------------------------------------------
+        print(f"📄 JSON exported: {filename}")
 
     def process_batch(self, filename):
-
         if not os.path.exists(filename):
-
-            print(
-                f"❌ File not found: {filename}"
-            )
-
+            print(f"❌ File not found: {filename}")
             return
 
         try:
-
-            with open(
-                filename,
-                "r",
-                encoding="utf-8"
-            ) as file:
-
-                numbers = [
-                    line.strip()
-                    for line in file
-                    if line.strip()
-                ]
-
+            with open(filename, "r", encoding="utf-8") as file:
+                numbers = [line.strip() for line in file if line.strip()]
         except Exception as exc:
-
-            print(
-                f"❌ Could not read file: {exc}"
-            )
-
+            print(f"❌ Could not read file: {exc}")
             return
 
-        print(
-            f"📂 Loaded {len(numbers)} number(s)."
-        )
+        print(f"📂 Loaded {len(numbers)} number(s).")
 
-        for index, number in enumerate(
-            numbers,
-            start=1
-        ):
-
-            print(
-                f"\n[{index}/{len(numbers)}]"
-            )
-
+        for index, number in enumerate(numbers, start=1):
+            print(f"\n[{index}/{len(numbers)}]")
             result = self.analyze(number)
-
             self.results.append(result)
-
             self.display(result)
-
             self.save_history(result)
-
-            # Respectful delay for geocoding service
             if index < len(numbers):
-
                 time.sleep(1)
-
-    # ---------------------------------------------------------
-    # VERSION
-    # ---------------------------------------------------------
 
     @staticmethod
     def show_version():
-
-        print(
-            f"{APP_NAME} v{VERSION}"
-        )
+        print(f"{APP_NAME} v{VERSION}")
 
 
 # ---------------------------------------------------------
@@ -806,116 +539,47 @@ def main():
         )
     )
 
-    parser.add_argument(
-        "number",
-        nargs="?",
-        help="Phone number to analyze"
-    )
-
-    parser.add_argument(
-        "-b",
-        "--batch",
-        help="Text file containing one number per line"
-    )
-
-    parser.add_argument(
-        "-e",
-        "--export",
-        choices=["json", "csv"],
-        help="Export results"
-    )
-
-    parser.add_argument(
-        "--map",
-        action="store_true",
-        help="Generate an approximate metadata map"
-    )
-
-    parser.add_argument(
-        "-v",
-        "--version",
-        action="store_true",
-        help="Show version"
-    )
+    parser.add_argument("number", nargs="?", help="Phone number to analyze")
+    parser.add_argument("-b", "--batch", help="Text file containing one number per line")
+    parser.add_argument("-e", "--export", choices=["json", "csv"], help="Export results")
+    parser.add_argument("--map", action="store_true", help="Generate an approximate metadata map")
+    parser.add_argument("-v", "--version", action="store_true", help="Show version")
 
     args = parser.parse_args()
 
+    # Always show banner first (except for --version)
+    if not args.version:
+        print_banner()
+
     analyzer = PhoneAnalyzer()
 
-    # ---------------------------------------------------------
-    # VERSION
-    # ---------------------------------------------------------
-
     if args.version:
-
         analyzer.show_version()
-
         return
 
-    # ---------------------------------------------------------
-    # BATCH
-    # ---------------------------------------------------------
-
     if args.batch:
-
-        analyzer.process_batch(
-            args.batch
-        )
-
-    # ---------------------------------------------------------
-    # SINGLE
-    # ---------------------------------------------------------
-
+        analyzer.process_batch(args.batch)
     else:
-
         number = args.number
 
         if not number:
-
-            number = input(
-                "📞 Enter phone number: "
-            ).strip()
+            number = input("📞 Enter phone number: ").strip()
 
         if not number:
-
-            print(
-                "❌ No phone number provided."
-            )
-
+            print("❌ No phone number provided.")
             return
 
-        result = analyzer.analyze(
-            number
-        )
-
-        analyzer.results.append(
-            result
-        )
-
-        analyzer.display(
-            result
-        )
-
-        analyzer.save_history(
-            result
-        )
+        result = analyzer.analyze(number)
+        analyzer.results.append(result)
+        analyzer.display(result)
+        analyzer.save_history(result)
 
         if args.map:
-
-            analyzer.generate_map(
-                result
-            )
-
-    # ---------------------------------------------------------
-    # EXPORT
-    # ---------------------------------------------------------
+            analyzer.generate_map(result)
 
     if args.export == "json":
-
         analyzer.export_json()
-
     elif args.export == "csv":
-
         analyzer.export_csv()
 
 
